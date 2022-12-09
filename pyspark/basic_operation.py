@@ -122,7 +122,9 @@ json_schema = spark.read.json(df.rdd.map(lambda row: row.extra_info)).schema
 df2 = df.withColumn('extra_info', F.from_json(col('extra_info'), json_schema))
 df3 = df2.withColumn('extra_info_id', F.col('extra_info.id'))
 
-
+#Demo9:-------------------------------------------------------------------------
+#使用F.substring截取子字符串
+df2 = df.withColumn("second_name", F.substring(df.name, 6, 10))
 
 
 

@@ -5,7 +5,7 @@ from pyspark.sql import functions as F
 from pyspark.sql.types import IntegerType,ArrayType,StringType,LongType
 from pyspark.sql.functions import udf as udf
 
-#Demo1:-------------------------------------------------------------------------------------
+#Demo1:-------------------------------------------------------------------------------------------
 #对df某一列操作，提取出slot_id，并
 data = [
     {"aid":11, "fids":"725900317002156569 72590031700215650"}, 
@@ -36,7 +36,7 @@ rdf = df3.withColumn("slots", tmp_udf("fid_tmp"))
 from pyspark.sql.functions import collect_set
 rdf.agg(collect_set('slots')).collect()
 
-#Demo2:-----------------------------------------------------------------------------
+#Demo2:-------------------------------------------------------------------------------------------
 #针对某一列使用udf提取字符串。ppsABTag='111#222#perfmThr_Huoshan01#888'，
 #从这里面提取出来perfmThr_作为新的一列ab_version
 data = [
@@ -62,7 +62,7 @@ def process_ab_version_from_ppsABTag(df):
 df2 = process_ab_version_from_ppsABTag(df)
 
 
-#Demo3:-------------------------------------------------------------------------
+#Demo3:--------------------------------------------------------------------------------------------
 #df.groupBy后，在agg中使用udf函数
 data = [
     {"aid":11, "value":"a"},
@@ -86,7 +86,7 @@ find_a_udf = F.udf(find_a, T.IntegerType())
 df.groupBy('aid').agg(find_a_udf(F.collect_list('value')).alias('a_count')).show()
 
 
-#Demo4: ------------------------------------------------------------------------
+#Demo4: -------------------------------------------------------------------------------------------
 #df.groupBy后，udf作用在2列上
 
 data = [
