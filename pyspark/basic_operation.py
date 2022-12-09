@@ -4,6 +4,28 @@ from pyspark.sql.types import IntegerType,ArrayType
 from pyspark.sql.functions import udf as udf
 
 
+#Demo1:-------------------------------------------------------------------------------
+#一些基础操作
+#dataframe读取
+df = spark.read.json("/xxxxx")
+df = spark.read.text("/xxxxx")
+df = spark.read.parquet("/xxxxx")
+df = spark.read.orc("/xxxxx")
+
+#排序
+df.orderBy('exposure_cnt', ascending=False).show(50,False)
+
+#过滤
+df.filter("name='hehe'") #保留等于hehe的行
+df.filter("name like '%Huoshan%'")
+df.filter(df.page_name.isin('综艺','动漫','纪录片','教育','会员'))
+df.where(df.name.contains('191'))
+
+#类型转换
+df = df.withColumn("item_id", df["item_id"].cast(LongType()))
+
+#重命名
+df = df.withColumnRenamed('item_id', 'new_item_id')
 
 #Demo1: --------------------------------------------------------------------------
 # df.groupBy后，使用agg函数
@@ -71,7 +93,7 @@ df2 = df.withColumn("bj_time", F.from_unixtime(F.col("req_time")))
 
 
 #Demo6:-------------------------------------------------------------------------
-#当前行与上一行求差F.when
+#用F.when条件，求当前行与上一行求差
 from pyspark.sql import functions as F
 from pyspark.sql.window import Window
 
@@ -87,11 +109,18 @@ df = df.withColumn("prev_value", F.lag(df.value).over(my_window))
 df = df.withColumn("diff", F.when(F.isnull(df.value - df.prev_value), 0).otherwise(df.value - df.prev_value))
 
 
+#Demo7: -----------------------------------------------------------------------
+#各种join
+rdf = adf.join(bdf, "item_id", "left_anti") #在adf中，但不在bdf中
+
+rdf = adf.join(bdf, "item_id", "left_semi") #left_semi用于返回跟左表一样schema的结果，最终结果是inner的结果
 
 
-
-
-
+#Demo8-----------------------------------------------------------------------------
+#df某列是string类型，但是可以解析成json，使用F.from_json从json string中解析字段
+json_schema = spark.read.json(df.rdd.map(lambda row: row.extra_info)).schema
+df2 = df.withColumn('extra_info', F.from_json(col('extra_info'), json_schema))
+df3 = df2.withColumn('extra_info_id', F.col('extra_info.id'))
 
 
 
