@@ -19,6 +19,7 @@ df.orderBy('exposure_cnt', ascending=False).show(50,False)
 df.filter("name='hehe'") #保留等于hehe的行
 df.filter("name like '%Huoshan%'")
 df.filter(df.page_name.isin('综艺','动漫','纪录片','教育','会员'))
+df.filter(df.name.isNotNull())) #保留name非空的，对应的空是：df.name.isNull()
 df.where(df.name.contains('191'))
 
 #类型转换
@@ -111,8 +112,9 @@ df = df.withColumn("diff", F.when(F.isnull(df.value - df.prev_value), 0).otherwi
 
 #Demo7: -----------------------------------------------------------------------
 #各种join
+rdf = adf.join(bdf, "item_id", "inner")
+rdf = adf.join(bdf, ["req_id", "item_id"], "inner") #两个key来join
 rdf = adf.join(bdf, "item_id", "left_anti") #在adf中，但不在bdf中
-
 rdf = adf.join(bdf, "item_id", "left_semi") #left_semi用于返回跟左表一样schema的结果，最终结果是inner的结果
 
 
@@ -126,6 +128,9 @@ df3 = df2.withColumn('extra_info_id', F.col('extra_info.id'))
 #使用F.substring截取子字符串
 df2 = df.withColumn("second_name", F.substring(df.name, 6, 10))
 
+#Demo10:----------------------------------------------------------------------
+#使用F.lit填充默认值
+df2 = df.withColumn("status", F.lit(0)) #填充
 
 
 
