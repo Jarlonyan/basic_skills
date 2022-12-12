@@ -17,7 +17,7 @@ df.orderBy('exposure_cnt', ascending=False).show(50,False)
 
 #过滤
 df.filter("name='hehe'") #保留等于hehe的行
-df.filter("name like '%Huoshan%'")
+df.filter("name like '%hehe%'") # *_hehe_*
 df.filter(df.page_name.isin('综艺','动漫','纪录片','教育','会员'))
 df.filter(df.name.isNotNull())) #保留name非空的，对应的空是：df.name.isNull()
 df.where(df.name.contains('191'))
@@ -40,7 +40,7 @@ df = spark.createDataFrame(data)
 df.printSchema()
 
 #求平均
-stat = df.groupBy("type").agg(F.mean("pctr"))
+stat = df.groupBy("type").agg(F.mean("pctr").alias('mean_pctr'))
 
 #Demo2:---------------------------------------------------------------------------
 # F.split切割字符串,
