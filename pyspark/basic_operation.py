@@ -120,9 +120,18 @@ rdf = adf.join(bdf, "item_id", "left_semi") #left_semi用于返回跟左表一�
 
 #Demo8-----------------------------------------------------------------------------
 #df某列是string类型，但是可以解析成json，使用F.from_json从json string中解析字段
+data = [
+    {"aid":11, "extra_info": json.dumps({"oid": '1111', "slot_id":2})},
+    {"aid":66, "extra_info": json.dumps({"oid": '6666', "slot_id":9})},
+    {"aid":33, "extra_info": json.dumps({"oid": '3333', "slot_id":6})},
+    {"aid":99, "extra_info": json.dumps({"oid": '9999', "slot_id":8})},
+    {"aid":88, "extra_info": json.dumps({"oid": '8888', "slot_id":1})}
+]
+df = spark.createDataFrame(data)
+
 json_schema = spark.read.json(df.rdd.map(lambda row: row.extra_info)).schema
-df2 = df.withColumn('extra_info', F.from_json(col('extra_info'), json_schema))
-df3 = df2.withColumn('extra_info_id', F.col('extra_info.id'))
+df2 = df.withColumn('extra_info', F.from_json(F.col('extra_info'), json_schema))
+df3 = df2.withColumn('extra_info_id', F.col('extra_info.oid'))
 
 #Demo9:-------------------------------------------------------------------------
 #使用F.substring截取子字符串
