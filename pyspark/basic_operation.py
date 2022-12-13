@@ -141,6 +141,17 @@ df2 = df.withColumn("second_name", F.substring(df.name, 6, 10))
 #使用F.lit填充默认值
 df2 = df.withColumn("status", F.lit(0)) #填充
 
+#Demo11:-----------------------------------------------------------------------
+#使用F.udf和lambda函数比较两列中相等的值
+data = [
+    {"aid":11, "col_a": 888, "col_b": 887},
+    {"aid":22, "col_a": 666, "col_b": 666},
+    {"aid":33, "col_a": 999, "col_b": 999},
+    {"aid":66, "col_a": 555, "col_b": 555}
+]
+df = spark.createDataFrame(data)
+df2 = df.withColumn('com_col_a&col_b', F.udf(lambda x,y: 1 if x==y else 0)(F.col('col_a'), F.col('col_b')))
+
 
 
 
