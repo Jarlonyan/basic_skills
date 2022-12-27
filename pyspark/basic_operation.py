@@ -24,6 +24,7 @@ df.where(df.name.contains('191'))
 
 #类型转换
 df = df.withColumn("item_id", df["item_id"].cast(LongType()))
+df = df.withColumn('creative_type', F.col('creativeType').cast('string'))
 
 #重命名
 df = df.withColumnRenamed('item_id', 'new_item_id')
@@ -67,7 +68,6 @@ data = [
 ]
 df = spark.createDataFrame(data)
 df2 = df.withColumn("obj_id", F.expr('obj1.oid').cast('string'))
-
 
 #Demo4: --------------------------------------------------------------------------
 # F.regexp_extract使用正则表达式,提取部分字符串
@@ -152,6 +152,9 @@ data = [
 df = spark.createDataFrame(data)
 df2 = df.withColumn('com_col_a&col_b', F.udf(lambda x,y: 1 if x==y else 0)(F.col('col_a'), F.col('col_b')))
 
+
+#Demo12:-----------------------------------------------------------------------
+#F.broadcast用法
 
 
 
