@@ -2,7 +2,7 @@
 #读取user_profile数据，然后统计每个slot的覆盖率
 
 from pyspark.sql import functions as F
-from pyspark.sql.types import IntegerType,ArrayType,StringType,LongType
+from pyspark.sql.types import IntegerType,ArrayType,StringType,LongType,StructType
 from pyspark.sql.functions import udf as udf
 
 #Demo1:-------------------------------------------------------------------------------------------
@@ -133,8 +133,35 @@ def get_ssp_fid(df):
     df4 = df3.withColumn('ssp_id_fid', udf_func_sspid('fid_list'))
     return df4
 
-#-------------------------------------------------------------------------------------------
+#Demo6:-------------------------------------------------------------------------------------------
+#使用udf对一列进行计算，结果得到2列
+import pyspark.sql.functions as F
+from pyspark.sql.types import *
 
+data = [
+    {"aid":11, "col_a":"t1", "col_b": 1},
+    {"aid":22, "col_a":"t2", "col_b": 5},
+    {"aid":11, "col_a":"t3", "col_b": 6},
+    {"aid":22, "col_a":"t4", "col_b": 6}
+]
+df = spark.createDataFrame(data)
+
+schema = StructType([
+    StructField("res1", IntegerType(), False),
+    StructField("res2", IntegerType(), False)
+])
+
+def func_calc_2_res(col):
+    res  = [None, None]
+    if col is not None:
+        res = [col/2, col%2]
+    return res
+
+udf_calc_2_res = F.udf(func_calc_2_res, schema)
+df2 = df.withColumn("tmp", udf_calc_2_res("col_b"))
+df3 = df2.withColumn('res1', F.expr('tmp.res1')).withColumn('res2', F.expr('tmp.res2'))
+
+#Demo7------------------------------------------------------------------
 
 
 
