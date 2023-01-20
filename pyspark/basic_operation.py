@@ -58,7 +58,7 @@ split_col = F.split(df['name'], '\|')
 df2 = df.withColumn('name_1', split_col.getItem(0))
 
 #Demo3:----------------------------------------------------------------------------
-# F.expr将 json object 解开
+# 使用F.expr将 json object 解开
 data = [
     {"aid":11, "obj1": {"oid": '1111', "slot_id":2}},
     {"aid":66, "obj1": {"oid": '6666', "slot_id":9}},
@@ -69,8 +69,26 @@ data = [
 df = spark.createDataFrame(data)
 df2 = df.withColumn("obj_id", F.expr('obj1.oid').cast('string'))
 
-#Demo4: --------------------------------------------------------------------------
-# F.regexp_extract使用正则表达式,提取部分字符串
+
+#Demo4:---------------------------------------------------------------------------
+# 使用F.from_json解析字符串形式的json,把str类型转化成struct类型
+import pyspark.sql.functions as F
+import json
+data = [
+    {"aid":11, "obj1": json.dumps({"oid": '1111', "slot_id":2})},
+    {"aid":66, "obj1": json.dumps({"oid": '6666', "slot_id":9})},
+    {"aid":33, "obj1": json.dumps({"oid": '3333', "slot_id":6})},
+    {"aid":99, "obj1": json.dumps({"oid": '9999', "slot_id":8})},
+    {"aid":88, "obj1": json.dumps({"oid": '8888', "slot_id":1})},
+]
+df = spark.createDataFrame(data)
+
+json_schema = spark.read.json(df.rdd.map(lambda row: row.obj1)).schema
+df2 = df.withColumn('obj2', F.from_json(F.col('obj1'), json_schema))
+
+
+#Demo5: --------------------------------------------------------------------------
+# 使用F.regexp_extract使用正则表达式,提取部分字符串
 data = [
     {"aid":11, "type":"t1", "pctr": 0.2, "ppsABTag": "aaa#perfmThr_Huoshan02#aaaaa"},
     {"aid":22, "type":"t2", "pctr": 0.25, "ppsABTag": "bbb#perfmThr_Huoshan01#bbbb"},
@@ -80,7 +98,7 @@ data = [
 df = spark.createDataFrame(data)
 df2 = df.withColumn('ab_version', F.regexp_extract('ppsABTag', r'(perfmThr.*?)(?=#)', 1))
 
-#Demo5:-------------------------------------------------------------------------
+#Demo6:-------------------------------------------------------------------------
 #时间戳转北京时间
 from pyspark.sql import functions as F
 data = [
@@ -93,7 +111,7 @@ df = spark.createDataFrame(data)
 df2 = df.withColumn("bj_time", F.from_unixtime(F.col("req_time")))
 
 
-#Demo6:-------------------------------------------------------------------------
+#Demo7:-------------------------------------------------------------------------
 #用F.when条件，求当前行与上一行求差
 from pyspark.sql import functions as F
 from pyspark.sql.window import Window
@@ -110,7 +128,7 @@ df = df.withColumn("prev_value", F.lag(df.value).over(my_window))
 df = df.withColumn("diff", F.when(F.isnull(df.value - df.prev_value), 0).otherwise(df.value - df.prev_value))
 
 
-#Demo7: -----------------------------------------------------------------------
+#Demo8: -----------------------------------------------------------------------
 #各种join
 rdf = adf.join(bdf, "item_id", "inner")
 rdf = adf.join(bdf, ["req_id", "item_id"], "inner") #两个key来join
@@ -118,7 +136,7 @@ rdf = adf.join(bdf, "item_id", "left_anti") #在adf中，但不在bdf中
 rdf = adf.join(bdf, "item_id", "left_semi") #left_semi用于返回跟左表一样schema的结果，最终结果是inner的结果
 
 
-#Demo8-----------------------------------------------------------------------------
+#Demo9：-----------------------------------------------------------------------------
 #df某列是string类型，但是可以解析成json，使用F.from_json从json string中解析字段
 data = [
     {"aid":11, "extra_info": json.dumps({"oid": '1111', "slot_id":2})},
@@ -133,15 +151,15 @@ json_schema = spark.read.json(df.rdd.map(lambda row: row.extra_info)).schema
 df2 = df.withColumn('extra_info', F.from_json(F.col('extra_info'), json_schema))
 df3 = df2.withColumn('extra_info_id', F.col('extra_info.oid'))
 
-#Demo9:-------------------------------------------------------------------------
+#Demo10:-------------------------------------------------------------------------
 #使用F.substring截取子字符串
 df2 = df.withColumn("second_name", F.substring(df.name, 6, 10))
 
-#Demo10:----------------------------------------------------------------------
+#Demo11:----------------------------------------------------------------------
 #使用F.lit填充默认值
 df2 = df.withColumn("status", F.lit(0)) #填充
 
-#Demo11:-----------------------------------------------------------------------
+#Demo12:-----------------------------------------------------------------------
 #使用F.udf和lambda函数比较两列中相等的值
 data = [
     {"aid":11, "col_a": 888, "col_b": 887},
@@ -153,7 +171,7 @@ df = spark.createDataFrame(data)
 df2 = df.withColumn('com_col_a&col_b', F.udf(lambda x,y: 1 if x==y else 0)(F.col('col_a'), F.col('col_b')))
 
 
-#Demo12:-----------------------------------------------------------------------
+#Demo13:-----------------------------------------------------------------------
 #F.broadcast用法
 
 
