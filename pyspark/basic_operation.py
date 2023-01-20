@@ -172,7 +172,30 @@ df2 = df.withColumn('com_col_a&col_b', F.udf(lambda x,y: 1 if x==y else 0)(F.col
 
 
 #Demo13:-----------------------------------------------------------------------
-#F.broadcast用法
+#使用rdd.mapPartitions(xxx_func)解析api数据
+def parse_log_data(partitions):
+    for row in partitions: # partiton
+        if row.rsp.value is None or row.rsp.value.data is None or row.req.rec is None:
+            continue
+        if row.req.rec.extra is None or row.rsp.value.meta is None:
+            continue
+        if row.req.reqId is None:
+            continue
+        for item in row.rsp.value.data: # item
+            yield {
+                "req_id": row.req.reqId,
+                "user_id": row.req.user.uid,
+                "scene_id": row.req.rec.extra.scene_id,
+                "scene": row.req.scene,
+                "origin_item_id": item.idStr,
+                "parent_item_id": row.req.rec.extra.parent_item_id,
+                "item_id": item.id,
+                "spm": row.req.rec.spm,
+                "version": row.rsp.value.meta.version,
+                "datetime": row.datetime
+            }
+
+adf = spark.read.json("xxxx").repartition(1000).rdd.mapPartitions(parse_log_data).toDF()
 
 
 
