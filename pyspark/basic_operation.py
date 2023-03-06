@@ -197,6 +197,36 @@ def parse_log_data(partitions):
 
 adf = spark.read.json("xxxx").repartition(1000).rdd.mapPartitions(parse_log_data).toDF()
 
+#Demo14:-----------------------------------------------------------------------
+#使用F.explode拍平数据
+data = [('James',     ['Java','Scala'],      {'hair':'black','eye':'brown'}),
+        ('Michael',   ['Spark','Java',None], {'hair':'brown','eye':None}),
+        ('Robert',    ['CSharp',''],         {'hair':'red','eye':''}),
+        ('Washington', None,                 None),
+        ('Jefferson',  ['1','2'],            {})
+]
+df = spark.createDataFrame(data=data, schema = ['name','knownLanguages','properties'])
+df.printSchema()
+
+import pyspark.sql.functions as F
+df2 = df.withColumn("knownLanguages_2", F.explode(df.knownLanguages))  # 如果F.explode的是一个array，比如说有3个元素，那该行会复制3条
+df3 = df.select(df.name, F.explode(df.properties))          #
+
+
+#Demo15:---------------------------------------------------------------------
+#某一列string转long，然后长度跟原来长度比较，如果是float类型的string，则强转会丢小数部分
+data = [
+    {"contend_id": "181965", "col_a": 888},
+    {"contend_id": "108926", "col_a": 666},
+    {"contend_id": "162987", "col_a": 999},
+    {"contend_id": "45.109828", "col_a": 555}
+]
+df = spark.createDataFrame(data)
+
+df = df.withColumn('cid_check', F.col('contend_id').cast('long').cast('string'))\
+       .filter(F.length(F.col('cid_check')) == F.length(F.col('contend_id')))
+df.show()
+
 
 
 

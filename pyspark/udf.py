@@ -83,6 +83,7 @@ def find_a(x):
   return output_count
 
 find_a_udf = F.udf(find_a, T.IntegerType())
+find_a_udf = F.udf(lambda x: find_a(x), T.IntegerType())
 df.groupBy('aid').agg(find_a_udf(F.collect_list('value')).alias('a_count')).show()
 
 
