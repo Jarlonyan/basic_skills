@@ -12,6 +12,31 @@ df = spark.read.text("/xxxxx")
 df = spark.read.parquet("/xxxxx")
 df = spark.read.orc("/xxxxx")
 
+hdfs_path = '/xxxxx/xxxxx/xxxxx'
+text = sc.textFile(hdfs_path)
+def parser_func(data_json):
+    j = json.loads(data_json)
+    ret = []
+    try:
+        req = j.get('req')
+        rsp = j.get('rsp')
+        for res in rsp.get('adResults'):
+            rsp_ad_group_id = res.get('adGroupId')
+            rsp_creative_scores = res.get('creativeScores')
+            for score in rsp_creative_scores:
+                ret.append(
+                    'req_id': req.get('req_id'),
+                    'req_uid': req.get('user_id'),
+                    'rsp_ad_group_id': rsp_ad_group_id,
+                    'rsp_creative_id': score['creative_id'],
+                    'rsp_pctr': score['pctr']
+                )
+            return ret
+    except:
+        pass
+    return ret
+df = spark.createDataFrame(text.flatMap(parser_func))
+
 #排序
 df.orderBy('exposure_cnt', ascending=False).show(50,False)
 
@@ -170,6 +195,8 @@ data = [
 df = spark.createDataFrame(data)
 df2 = df.withColumn('com_col_a&col_b', F.udf(lambda x,y: 1 if x==y else 0)(F.col('col_a'), F.col('col_b')))
 
+#过滤两列不相等的行
+df.filter(F.col('col_a') != F.col('col_b'))
 
 #Demo13:-----------------------------------------------------------------------
 #使用rdd.mapPartitions(xxx_func)解析api数据
@@ -227,6 +254,10 @@ df = df.withColumn('cid_check', F.col('contend_id').cast('long').cast('string'))
        .filter(F.length(F.col('cid_check')) == F.length(F.col('contend_id')))
 df.show()
 
+
+#Demo16:----------------------------------------------------------------
+F.col("aid").isNotNull())
+beh_data = beh_data.withColumn(c, F.when(F.col(c) == "null", F.lit("hello_null").cast('string')).otherwise(F.col(c)))
 
 
 
