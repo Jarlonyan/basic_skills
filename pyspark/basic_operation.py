@@ -256,8 +256,19 @@ df.show()
 
 
 #Demo16:----------------------------------------------------------------
+#判断null
 F.col("aid").isNotNull())
 beh_data = beh_data.withColumn(c, F.when(F.col(c) == "null", F.lit("hello_null").cast('string')).otherwise(F.col(c)))
+
+
+#Demo16:-----------------------------------------------------------------
+#批量判断
+target_list = [3666, 3888, 4999, 5893]
+df2 = df.where(F.col('task_id').isin(target_list))
+
+#Demo17:------------------------------------------------------------
+#批量读取多天
+spark.read.json('/user/xxxx/bhv/2023{0330,0401,0402}')
 
 
 
