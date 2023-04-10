@@ -163,6 +163,23 @@ df2 = df.withColumn("tmp", udf_calc_2_res("col_b"))
 df3 = df2.withColumn('res1', F.expr('tmp.res1')).withColumn('res2', F.expr('tmp.res2'))
 
 #Demo7------------------------------------------------------------------
+from pyspark.sql import functions as F 
+like_f = F.udf(lambda col: True if 'feabx_123_adsfafafadvxx' in col else False, BooleanType())
+df.filter(like_f('column')).select('column')
+
+#或者
+req_id_list = [
+    'xxxx'
+]
+def func_like(col):
+    for req_id in req_id_list:
+        if req_id in col:
+            return True
+    return False
+
+udf_func_like = F.udf(func_like, BooleanType())
+adf2=adf.filter(udf_func_like('req.reqId'))
+
 
 
 
