@@ -271,4 +271,8 @@ df2 = df.where(F.col('task_id').isin(target_list))
 spark.read.json('/user/xxxx/bhv/2023{0330,0401,0402}')
 
 
+#Demo18:---------------------------------------------------------
+#按照多列排序
+df.orderBy(F.desc('cnt1'), F.desc('cnt2'))
+
 
