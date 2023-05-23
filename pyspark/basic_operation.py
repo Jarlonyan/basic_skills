@@ -54,6 +54,8 @@ df = df.withColumn('creative_type', F.col('creativeType').cast('string'))
 #重命名
 df = df.withColumnRenamed('item_id', 'new_item_id')
 
+df.repartition(10).write.json(path=output_path, compression='snappy', mode='overwrite')
+
 #Demo1: --------------------------------------------------------------------------
 # df.groupBy后，使用agg函数
 data = [
@@ -67,6 +69,7 @@ df.printSchema()
 
 #求平均
 stat = df.groupBy("type").agg(F.mean("pctr").alias('mean_pctr'))
+stat = df.groupBy('creative_id').agg(F.mean('pcvr').alias('avg_pcvr'), F.count('*').alias('count'))
 
 #Demo2:---------------------------------------------------------------------------
 # F.split切割字符串,
@@ -274,5 +277,17 @@ spark.read.json('/user/xxxx/bhv/2023{0330,0401,0402}')
 #Demo18:---------------------------------------------------------
 #按照多列排序
 df.orderBy(F.desc('cnt1'), F.desc('cnt2'))
+
+
+#Demo19:--------------------
+
+w = Window.partitionBy('site_id','slot_id')\
+    .orderBy(F.desc('rough_sort_cnt'), F.desc('adgroup_id'))
+rough_top100 = df.select('*', F.rank().over(w).alias('rank')).where('rank <= 100')
+
+w = Window.partitionBy('site_id','slot_id')\
+    .orderBy(F.desc('callback_cnt'), F.desc('adgroup_id'))
+callback_top100 = df.dropna().select('*', F.rank().over(w).alias('rank')).where('rank <= 100')
+# callback_cnt 可能为 NULL，需要 dropna
 
 

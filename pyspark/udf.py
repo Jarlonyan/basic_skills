@@ -169,7 +169,9 @@ df.filter(like_f('column')).select('column')
 
 #或者
 req_id_list = [
-    'xxxx'
+    'xxxx',
+    'yyyy',
+    'zzzz'
 ]
 def func_like(col):
     for req_id in req_id_list:
