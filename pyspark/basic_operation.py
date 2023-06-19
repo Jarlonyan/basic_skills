@@ -71,6 +71,11 @@ df.printSchema()
 stat = df.groupBy("type").agg(F.mean("pctr").alias('mean_pctr'))
 stat = df.groupBy('creative_id').agg(F.mean('pcvr').alias('avg_pcvr'), F.count('*').alias('count'))
 
+#求和
+sum_df = df.agg(F.sum("col_name").alias("sum_col"))
+sum_col = sum_df.collect()[0]["sum_col"]
+
+
 #Demo2:---------------------------------------------------------------------------
 # F.split切割字符串,
 # |分割，则用\|切割
