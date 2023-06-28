@@ -285,7 +285,7 @@ df.orderBy(F.desc('cnt1'), F.desc('cnt2'))
 
 
 #Demo19:--------------------
-
+#window的使用方法，其中dropna() 函数会删除包含任何缺失值（NaN）的行。可以使用 axis 参数来指定删除行还是列，默认为删除行
 w = Window.partitionBy('site_id','slot_id')\
     .orderBy(F.desc('rough_sort_cnt'), F.desc('adgroup_id'))
 rough_top100 = df.select('*', F.rank().over(w).alias('rank')).where('rank <= 100')
