@@ -75,14 +75,14 @@ stat = df.groupBy('creative_id').agg(F.mean('pcvr').alias('avg_pcvr'), F.count('
 sum_df = df.agg(F.sum("col_name").alias("sum_col"))
 sum_col = sum_df.collect()[0]["sum_col"]
 
-# Demo2: 使用groupby和F函数，统计各种比例。 统计pCVR小于0.005/0.01/0.05/0.1的占比，切区分流量
+# Demo2: 使用groupby和F函数，统计各种比例。 统计pcvr小于0.005/0.01/0.05/0.1的占比，切区分流量
 df = df.withColumn('is_huoshan', F.col('ppsABTag').like('%Huoshan%'))
 stat = df.groupBy('is_huoshan', 'effect_type')\
          .agg(
-            F.round(F.sum(F.when(F.col('pCVR')<0.005,1))/F.count('*'), 4).alias('pcvr_0.0005_ratio'),
-            F.round(F.sum(F.when(F.col('pCVR')<0.01,1))/F.count('*'), 4).alias('pcvr_0.01_ratio'),
-            F.round(F.sum(F.when(F.col('pCVR')<0.05,1))/F.count('*'), 4).alias('pcvr_0.05_ratio'),
-            F.round(F.sum(F.when(F.col('pCVR')<0.1,1))/F.count('*'), 4).alias('pcvr_0.1_ratio')
+            F.round(F.sum(F.when(F.col('pcvr')<0.005,1))/F.count('*'), 4).alias('pcvr_0.0005_ratio'),
+            F.round(F.sum(F.when(F.col('pcvr')<0.01,1))/F.count('*'), 4).alias('pcvr_0.01_ratio'),
+            F.round(F.sum(F.when(F.col('pcvr')<0.05,1))/F.count('*'), 4).alias('pcvr_0.05_ratio'),
+            F.round(F.sum(F.when(F.col('pcvr')<0.1,1))/F.count('*'), 4).alias('pcvr_0.1_ratio')
          )
 
 
