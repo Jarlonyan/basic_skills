@@ -82,7 +82,8 @@ stat = df.groupBy('is_huoshan', 'effect_type')\
             F.round(F.sum(F.when(F.col('pcvr')<0.005,1))/F.count('*'), 4).alias('pcvr_0.0005_ratio'),
             F.round(F.sum(F.when(F.col('pcvr')<0.01,1))/F.count('*'), 4).alias('pcvr_0.01_ratio'),
             F.round(F.sum(F.when(F.col('pcvr')<0.05,1))/F.count('*'), 4).alias('pcvr_0.05_ratio'),
-            F.round(F.sum(F.when(F.col('pcvr')<0.1,1))/F.count('*'), 4).alias('pcvr_0.1_ratio')
+            F.round(F.sum(F.when(F.col('pcvr')<0.1,1))/F.count('*'), 4).alias('pcvr_0.1_ratio'),
+            F.count('*').alias('total_cnt')
          )
 
 
@@ -296,13 +297,14 @@ df.orderBy(F.desc('cnt1'), F.desc('cnt2'))
 
 #Demo19:--------------------
 #window的使用方法，其中dropna() 函数会删除包含任何缺失值（NaN）的行。可以使用 axis 参数来指定删除行还是列，默认为删除行
-w = Window.partitionBy('site_id','slot_id')\
-    .orderBy(F.desc('rough_sort_cnt'), F.desc('adgroup_id'))
+from pyspark.sql import Window
+w = Window.partitionBy('site_id','slot_id').orderBy(F.desc('rough_sort_cnt'), F.desc('adgroup_id'))
 rough_top100 = df.select('*', F.rank().over(w).alias('rank')).where('rank <= 100')
 
-w = Window.partitionBy('site_id','slot_id')\
-    .orderBy(F.desc('callback_cnt'), F.desc('adgroup_id'))
+w = Window.partitionBy('site_id','slot_id').orderBy(F.desc('callback_cnt'), F.desc('adgroup_id'))
 callback_top100 = df.dropna().select('*', F.rank().over(w).alias('rank')).where('rank <= 100')
 # callback_cnt 可能为 NULL，需要 dropna
+
+
 
 
