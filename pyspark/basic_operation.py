@@ -40,6 +40,9 @@ df = spark.createDataFrame(text.flatMap(parser_func))
 #排序
 df.orderBy('exposure_cnt', ascending=False).show(50,False)
 
+#返回前100的dataframe
+df.limit(100)
+
 #过滤
 df.filter("name='hehe'") #保留等于hehe的行
 df.filter("name like '%hehe%'") # *_hehe_*
@@ -85,6 +88,9 @@ stat = df.groupBy('is_huoshan', 'effect_type')\
             F.round(F.sum(F.when(F.col('pcvr')<0.1,1))/F.count('*'), 4).alias('pcvr_0.1_ratio'),
             F.count('*').alias('total_cnt')
          )
+
+df= df.withColumn('is_huoshan', F.col('ppsABTag').like('%Huoshan%'))\
+      .withColumn('flow_source',F.when('is_huoshan', 'Huoshan').otherwise('Huawei'))
 
 
 #Demo2:---------------------------------------------------------------------------
@@ -302,9 +308,18 @@ w = Window.partitionBy('site_id','slot_id').orderBy(F.desc('rough_sort_cnt'), F.
 rough_top100 = df.select('*', F.rank().over(w).alias('rank')).where('rank <= 100')
 
 w = Window.partitionBy('site_id','slot_id').orderBy(F.desc('callback_cnt'), F.desc('adgroup_id'))
-callback_top100 = df.dropna().select('*', F.rank().over(w).alias('rank')).where('rank <= 100')
-# callback_cnt 可能为 NULL，需要 dropna
+callback_top100 = df.dropna().select('*', F.rank().over(w).alias('rank')).where('rank <= 100')  # callback_cnt 可能为 NULL，需要 dropna
+
+w2 = Window.partitionBy('site_id','slot_id')
+df.withColumn('site_id_count', F.count('*').over(w2))
 
 
 
+
+
+#Demo20:---------------------------------------
+#有三列分别是A、B、C，现在要对A进行groupBy操作，然后根据B的不同值，创造新的列，并用C列的值填充进去
+from pyspark.sql.functions import first
+# 假设你的数据集名为 df，列名分别为 A、B、C
+result = df.groupBy('A').pivot('B').agg(first('C'))
 
