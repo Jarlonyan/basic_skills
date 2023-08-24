@@ -3,6 +3,9 @@ from pyspark.sql import functions as F
 from pyspark.sql.types import IntegerType,ArrayType
 from pyspark.sql.functions import udf as udf
 
+#spark-shell多行粘贴进去
+%cpaste
+--
 
 #Demo1:-------------------------------------------------------------------------------
 #一些基础操作
