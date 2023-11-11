@@ -310,8 +310,10 @@ from pyspark.sql import Window
 w = Window.partitionBy('site_id','slot_id').orderBy(F.desc('rough_sort_cnt'), F.desc('adgroup_id'))
 rough_top100 = df.select('*', F.rank().over(w).alias('rank')).where('rank <= 100')
 
+#定义了window，他是按照site_id/slot_id分组，然后组内按照callback_cnt、adgroup_id降序排序，然后把window用在dataframe上，用rank排序截取前面100个
 w = Window.partitionBy('site_id','slot_id').orderBy(F.desc('callback_cnt'), F.desc('adgroup_id'))
 callback_top100 = df.dropna().select('*', F.rank().over(w).alias('rank')).where('rank <= 100')  # callback_cnt 可能为 NULL，需要 dropna
+#定义的window，不光可以接上F.rank,也可以用F.count，比如df.withColumn("Count", F.count("*").over(window)).show()，就是分区后每组的个数统计
 
 w2 = Window.partitionBy('site_id','slot_id')
 df.withColumn('site_id_count', F.count('*').over(w2))
