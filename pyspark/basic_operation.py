@@ -305,7 +305,13 @@ df.orderBy(F.desc('cnt1'), F.desc('cnt2'))
 
 
 #Demo19:--------------------
-#window的使用方法，其中dropna() 函数会删除包含任何缺失值（NaN）的行。可以使用 axis 参数来指定删除行还是列，默认为删除行
+#window窗口函数的使用方法，其中dropna() 函数会删除包含任何缺失值（NaN）的行。可以使用 axis 参数来指定删除行还是列，默认为删除行
+#1.是用Window.partitionBy定义分区，表示窗口
+#2.在继续使用窗口函数操作，比如F.xxx().over(w)
+#xxx可以是:
+#    F.rank(), 用于为窗口中的每一行生成一个排名值。具有相同值的行将具有相同的排名
+#    F.count(), 
+#    F.row_number(), 用于为窗口中的每一行生成一个唯一的行号，不考虑重复
 from pyspark.sql import Window
 w = Window.partitionBy('site_id','slot_id').orderBy(F.desc('rough_sort_cnt'), F.desc('adgroup_id'))
 rough_top100 = df.select('*', F.rank().over(w).alias('rank')).where('rank <= 100')
