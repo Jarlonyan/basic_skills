@@ -21,3 +21,7 @@ kubectl edit deploy xxx(pod_name)
         annotations:
             force-update: "1"
 
+#查看某个服务的配置
+kubectl get deploy | grep sec-sort
+kubectl describe deploy data-byteair-sec-sort-online-24c48g-1
+
