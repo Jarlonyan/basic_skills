@@ -95,6 +95,9 @@ stat = df.groupBy('is_huoshan', 'effect_type')\
 df= df.withColumn('is_huoshan', F.col('ppsABTag').like('%Huoshan%'))\
       .withColumn('flow_source',F.when('is_huoshan', 'Huoshan').otherwise('Huawei'))
 
+# Demo2: ----------------------------------------
+# F.concat_ws() 使用concat_ws将col1和col2列连接起来，中间用逗号分隔
+df.withColumn("new_col", F.concat_ws(",", df.col1, df.col2))
 
 #Demo2:---------------------------------------------------------------------------
 # F.split切割字符串,
